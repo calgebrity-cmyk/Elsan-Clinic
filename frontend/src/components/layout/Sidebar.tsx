@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, UserRound, Calendar, FileText, BarChart, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, UserRound, Calendar, FileText, BarChart, Settings, LogOut, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
@@ -10,6 +10,7 @@ const menuItems = [
   { name: "Doctors", href: "/admin/doctors", icon: UserRound },
   { name: "Staff", href: "/admin/staff", icon: Users },
   { name: "Appointments", href: "/admin/appointments", icon: Calendar },
+  { name: "Telemedicine", href: "/admin/telemedicine", icon: Video },
   { name: "Prescriptions", href: "/admin/prescriptions", icon: FileText },
   { name: "Reports", href: "/admin/reports", icon: BarChart },
   { name: "Settings", href: "/admin/settings", icon: Settings },
