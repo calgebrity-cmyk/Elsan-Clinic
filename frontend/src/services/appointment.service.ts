@@ -21,4 +21,14 @@ export const appointmentService = {
     const response = await api.put(`/appointments/${id}`, data);
     return response.data;
   },
+
+  assignDoctor: async (id: string, doctorId: string) => {
+    const response = await api.put(`/appointments/${id}/assign-doctor`, { doctor_id: doctorId });
+    return response.data;
+  },
+
+  updateStatus: async (id: string, status: string) => {
+    const response = await api.put(`/appointments/${id}/status`, { status });
+    return response.data;
+  },
 };

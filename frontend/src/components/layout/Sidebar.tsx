@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, UserRound, Calendar, FileText, Video, LayoutDashboard, Settings, LogOut, Loader2 } from "lucide-react";
+import { Users, UserRound, Calendar, FileText, Video, LayoutDashboard, Settings, LogOut, Loader2, BedDouble } from "lucide-react";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from "../../lib/utils";
@@ -9,13 +9,12 @@ import { useUser, useLogout } from "../../hooks";
 const getMenuItems = (role: string) => {
   const items = [];
   
-  if (['SUPER_ADMIN', 'DIRECTOR', 'ANALYST'].includes(role)) {
-    items.push({ name: "Overview", href: "/admin", icon: LayoutDashboard });
-  }
+  items.push({ name: "Overview", href: "/admin", icon: LayoutDashboard });
   
   if (['SUPER_ADMIN', 'RECEPTIONIST', 'NURSE'].includes(role)) {
     items.push({ name: "Appointments", href: "/admin/appointments", icon: Calendar });
     items.push({ name: "Patients", href: "/admin/patients", icon: Users });
+    items.push({ name: "Inpatients", href: "/admin/inpatients", icon: BedDouble });
   }
   
   if (['SUPER_ADMIN', 'DIRECTOR'].includes(role)) {
@@ -61,7 +60,7 @@ export default function Sidebar() {
           <nav className="grid items-start px-4 text-sm font-medium gap-1">
             {!isLoading && getMenuItems(user?.role || '').map((item) => (
               <Link
-                key={item.href}
+                key={item.name}
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all",

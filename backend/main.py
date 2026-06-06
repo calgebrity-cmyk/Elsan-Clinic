@@ -10,6 +10,8 @@ from routers.patients import router as patients_router
 from routers.appointments import router as appointments_router
 from api.medicines.router import router as medicines_router
 from api.prescriptions.router import router as prescriptions_router
+from routers.visits import router as visits_router
+from routers.admissions import router as admissions_router
 
 app = FastAPI(title="Elsan Clinic Backend API", version="1.0.0")
 
@@ -31,6 +33,8 @@ app.include_router(patients_router)
 app.include_router(appointments_router)
 app.include_router(medicines_router)
 app.include_router(prescriptions_router)
+app.include_router(visits_router)
+app.include_router(admissions_router)
 
 @app.get("/")
 def read_root():

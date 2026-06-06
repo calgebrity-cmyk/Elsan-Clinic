@@ -7,6 +7,9 @@ from models.domain import User, TokenBlacklist
 import jwt
 
 def get_token_from_cookie(request: Request) -> str:
+    print("DEBUG [get_token_from_cookie] Request URL:", str(request.url))
+    print("DEBUG [get_token_from_cookie] Request Headers:", dict(request.headers))
+    print("DEBUG [get_token_from_cookie] Request Cookies:", dict(request.cookies))
     token = request.cookies.get("access_token")
     if not token:
         # Fallback to Authorization header for swagger UI testing

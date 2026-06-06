@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 
 import {
   OverviewStats, DoctorsTable, StaffTable, PatientSearch,
-  AppointmentCard, PrescriptionForm, SettingsPanel,
+  AppointmentCard, PrescriptionForm, SettingsPanel, ReceptionistDashboard
 } from "../../components/dashboard";
 import { useUser } from "../../hooks";
 import { Loader2 } from "lucide-react";
@@ -26,6 +26,7 @@ export default function DashboardPage() {
 }
 
 function DashboardOverview({ user }: { user: any }) {
+  const router = useRouter();
   if (!user) return null;
 
   return (
@@ -110,15 +111,7 @@ function DashboardOverview({ user }: { user: any }) {
       )}
 
       {['SUPER_ADMIN', 'NURSE', 'RECEPTIONIST'].includes(user.role) && (
-        <div className="grid grid-cols-1 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-            <h3 className="font-semibold text-slate-800 mb-4">Active Patient Queue</h3>
-            <div className="flex flex-col items-center justify-center h-40 text-slate-400">
-              <p>There are 12 patients currently in the clinic waiting area.</p>
-              <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Manage Patient Flow</button>
-            </div>
-          </div>
-        </div>
+        <ReceptionistDashboard onNavigateToTab={(tab) => router.push(`/admin/${tab}`)} />
       )}
     </div>
   );

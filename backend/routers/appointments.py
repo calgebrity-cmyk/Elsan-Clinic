@@ -26,7 +26,7 @@ async def create_appointment(
 ):
     new_appt = Appointment(
         patient_id=data.get("patient_id"),
-        doctor_id=data.get("doctor_id"),
+        doctor_id=data.get("doctor_id") or None,
         appointment_date=datetime.strptime(data.get("appointment_date"), "%Y-%m-%d").date(),
         appointment_time=datetime.strptime(data.get("appointment_time"), "%H:%M").time(),
         status=AppointmentStatus.SCHEDULED,
@@ -91,3 +91,50 @@ async def create_public_appointment(
     await db.commit()
     await db.refresh(new_appt)
     return {"message": "Appointment created successfully", "appointment_id": str(new_appt.id)}
+
+@router.put("/{id}/assign-doctor")
+async def assign_doctor_to_appointment(
+    id: str,
+    data: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    doctor_id = data.get("doctor_id")
+    if not doctor_id:
+        raise HTTPException(status_code=400, detail="Doctor ID is required")
+        
+    result = await db.execute(select(Appointment).where(Appointment.id == id))
+    appointment = result.scalar_one_or_none()
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+        
+    appointment.doctor_id = doctor_id
+    await db.commit()
+    await db.refresh(appointment)
+    return appointment
+
+@router.put("/{id}/status")
+async def update_appointment_status(
+    id: str,
+    data: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    status_val = data.get("status")
+    if not status_val:
+        raise HTTPException(status_code=400, detail="Status is required")
+        
+    try:
+        new_status = AppointmentStatus(status_val)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid status value")
+        
+    result = await db.execute(select(Appointment).where(Appointment.id == id))
+    appointment = result.scalar_one_or_none()
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+        
+    appointment.status = new_status
+    await db.commit()
+    await db.refresh(appointment)
+    return appointment

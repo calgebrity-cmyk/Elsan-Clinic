@@ -1,7 +1,12 @@
 export { default as OverviewStats } from './OverviewStats';
+export { default as ReceptionistDashboard } from './ReceptionistDashboard';
 export { default as DoctorsTable } from './DoctorsTable';
 export { default as StaffTable } from './StaffTable';
+export * from './PatientRegistrationModal';
+export * from './PatientDetailsModal';
+export * from './VisitCreationModal';
 export { default as PatientSearch } from './PatientSearch';
 export { default as AppointmentCard } from './AppointmentCard';
 export { default as PrescriptionForm } from './PrescriptionForm';
 export { default as SettingsPanel } from './SettingsPanel';
+export { DischargeConfirmModal } from './DischargeConfirmModal';

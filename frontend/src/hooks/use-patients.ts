@@ -8,6 +8,14 @@ export function usePatients() {
   });
 }
 
+export function useSearchPatients(query: string) {
+  return useQuery({
+    queryKey: ['patients', 'search', query],
+    queryFn: () => patientService.search(query),
+    enabled: query.length >= 2,
+  });
+}
+
 export function usePatient(id: string) {
   return useQuery({
     queryKey: ['patients', id],
@@ -21,6 +29,29 @@ export function useCreatePatient() {
 
   return useMutation({
     mutationFn: patientService.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+    },
+  });
+}
+
+export function useUpdatePatient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => patientService.update(id, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+      queryClient.invalidateQueries({ queryKey: ['patients', variables.id] });
+    },
+  });
+}
+
+export function useDeletePatient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: patientService.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
     },

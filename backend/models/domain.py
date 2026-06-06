@@ -66,14 +66,24 @@ class Patient(Base):
     phone = Column(String(20), index=True, nullable=False)
     address = Column(Text, nullable=True)
     medical_history = Column(Text, nullable=True)
+    email = Column(String(255), nullable=True)
+    emergency_contact = Column(String(100), nullable=True)
+    allergies = Column(Text, nullable=True)
+    current_symptoms = Column(Text, nullable=True)
+    notes = Column(Text, nullable=True)
+    registered_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    registered_by_name = Column(String(150), nullable=True)
+    is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=get_utc_now)
     updated_at = Column(DateTime(timezone=True), default=get_utc_now, onupdate=get_utc_now)
     
     appointments = relationship("Appointment", back_populates="patient")
     visits = relationship("Visit", back_populates="patient")
+    registered_by_user = relationship("User", foreign_keys=[registered_by_id])
 
 class AppointmentStatus(str, enum.Enum):
     SCHEDULED = "SCHEDULED"
+    CHECKED_IN = "CHECKED_IN"
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"
 
@@ -82,7 +92,7 @@ class Appointment(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     patient_id = Column(UUID(as_uuid=True), ForeignKey("patients.id"), nullable=False)
-    doctor_id = Column(UUID(as_uuid=True), ForeignKey("doctors.id"), nullable=False, index=True)
+    doctor_id = Column(UUID(as_uuid=True), ForeignKey("doctors.id"), nullable=True, index=True)
     appointment_date = Column(Date, nullable=False, index=True)
     appointment_time = Column(Time, nullable=False)
     status = Column(SQLEnum(AppointmentStatus), default=AppointmentStatus.SCHEDULED)
@@ -101,7 +111,7 @@ class Visit(Base):
     doctor_id = Column(UUID(as_uuid=True), ForeignKey("doctors.id"), nullable=False)
     appointment_id = Column(UUID(as_uuid=True), ForeignKey("appointments.id"), nullable=True)
     symptoms = Column(Text, nullable=False)
-    diagnosis = Column(Text, nullable=False)
+    diagnosis = Column(Text, nullable=True)
     doctor_notes = Column(Text, nullable=True)
     next_visit_date = Column(Date, nullable=True)
     created_at = Column(DateTime(timezone=True), default=get_utc_now)
@@ -204,3 +214,50 @@ class AuditLog(Base):
     details = Column(Text, nullable=True)
     timestamp = Column(DateTime(timezone=True), default=get_utc_now)
 
+class PatientDoctorMapping(Base):
+    __tablename__ = "patient_doctor_mapping"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    patient_id = Column(UUID(as_uuid=True), ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True)
+    doctor_id = Column(UUID(as_uuid=True), ForeignKey("doctors.id", ondelete="CASCADE"), nullable=False, index=True)
+    assigned_at = Column(DateTime(timezone=True), default=get_utc_now)
+    is_active = Column(Boolean, default=True)
+    
+    patient = relationship("Patient", backref="doctor_mappings")
+    doctor = relationship("Doctor", backref="patient_mappings")
+
+class AdmissionStatus(str, enum.Enum):
+    ADMITTED = "ADMITTED"
+    DISCHARGED = "DISCHARGED"
+
+class Admission(Base):
+    __tablename__ = "admissions"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    patient_id = Column(UUID(as_uuid=True), ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True)
+    admitting_doctor_id = Column(UUID(as_uuid=True), ForeignKey("doctors.id", ondelete="SET NULL"), nullable=True, index=True)
+    admission_number = Column(String(50), unique=True, index=True, nullable=True)
+    attender_mobile_number = Column(String(20), nullable=True)
+    admission_date = Column(DateTime(timezone=True), default=get_utc_now, nullable=False)
+    discharge_date = Column(DateTime(timezone=True), nullable=True)
+    reason_for_admission = Column(Text, nullable=False)
+    room_bed_number = Column(String(100), nullable=True)
+    status = Column(String(50), default=AdmissionStatus.ADMITTED.value, index=True)
+    created_at = Column(DateTime(timezone=True), default=get_utc_now)
+    updated_at = Column(DateTime(timezone=True), default=get_utc_now, onupdate=get_utc_now)
+    
+    patient = relationship("Patient", backref="admissions")
+    admitting_doctor = relationship("Doctor", backref="admissions")
+    daily_visits = relationship("AdmissionDailyVisit", back_populates="admission", cascade="all, delete-orphan")
+
+class AdmissionDailyVisit(Base):
+    __tablename__ = "admission_daily_visits"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    admission_id = Column(UUID(as_uuid=True), ForeignKey("admissions.id", ondelete="CASCADE"), nullable=False, index=True)
+    doctor_id = Column(UUID(as_uuid=True), ForeignKey("doctors.id", ondelete="SET NULL"), nullable=True, index=True)
+    visit_date = Column(DateTime(timezone=True), default=get_utc_now, nullable=False)
+    notes = Column(Text, nullable=False)
+    
+    admission = relationship("Admission", back_populates="daily_visits")
+    doctor = relationship("Doctor")

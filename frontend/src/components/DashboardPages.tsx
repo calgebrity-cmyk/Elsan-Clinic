@@ -123,6 +123,7 @@ export function PatientManagement() {
                 <th className="p-4 font-semibold">Patient Code</th>
                 <th className="p-4 font-semibold">Name</th>
                 <th className="p-4 font-semibold">Contact</th>
+                <th className="p-4 font-semibold">Registered By</th>
                 <th className="p-4 font-semibold">Actions</th>
               </tr>
             </thead>
@@ -132,6 +133,7 @@ export function PatientManagement() {
                   <td className="p-4 font-medium text-blue-600">{p.patient_code}</td>
                   <td className="p-4 font-medium text-slate-800">{p.full_name}</td>
                   <td className="p-4 text-slate-600">{p.phone}</td>
+                  <td className="p-4 text-slate-600">{p.registered_by_name || 'Receptionist'}</td>
                   <td className="p-4 text-blue-600 font-medium cursor-pointer hover:underline">View History</td>
                 </tr>
               ))}
@@ -145,14 +147,32 @@ export function PatientManagement() {
 
 export function AppointmentManagement() {
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    appointmentApi.getAppointments().then((data) => {
-      setAppointments(data);
+    Promise.all([
+      appointmentApi.getAppointments(),
+      patientApi.getPatients()
+    ]).then(([apptData, patientData]) => {
+      setAppointments(apptData);
+      setPatients(patientData);
       setLoading(false);
     });
   }, []);
+
+  const formatHour12 = (timeStr?: string) => {
+    if (!timeStr) return '10';
+    const h = parseInt(timeStr.split(':')[0], 10);
+    const hour = h % 12;
+    return hour ? hour.toString() : '12';
+  };
+  
+  const getAmPm = (timeStr?: string) => {
+    if (!timeStr) return 'AM';
+    const h = parseInt(timeStr.split(':')[0], 10);
+    return h >= 12 ? 'PM' : 'AM';
+  };
 
   return (
     <div className="space-y-6">
@@ -168,20 +188,24 @@ export function AppointmentManagement() {
            <div className="col-span-2 p-8 text-center text-slate-500"><Loader2 className="animate-spin inline mr-2"/> Loading Appointments...</div>
         ) : appointments.length === 0 ? (
            <div className="col-span-2 p-8 text-center text-slate-500 border border-slate-200 rounded-xl bg-white">No appointments scheduled for today.</div>
-        ) : appointments.map((appt, i) => (
+        ) : appointments.map((appt, i) => {
+          const patient = patients.find(p => p.id === appt.patient_id);
+          const patientName = patient?.full_name || appt.patient_name || 'Unknown Patient';
+          
+          return (
           <div key={i} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
             <div className="flex items-center gap-4">
               <div className="bg-orange-100 text-orange-700 font-bold p-3 rounded-lg text-center leading-tight">
-                {appt.appointment_time?.split(':')[0] || '10'}<br/><span className="text-xs">{Number(appt.appointment_time?.split(':')[0]) >= 12 ? 'PM' : 'AM'}</span>
+                {formatHour12(appt.appointment_time)}<br/><span className="text-xs">{getAmPm(appt.appointment_time)}</span>
               </div>
               <div>
-                <h4 className="font-bold text-slate-800">Patient ID: {appt.patient_id?.substring(0,8)}</h4>
-                <p className="text-sm text-slate-500 flex items-center gap-1"><Phone size={14}/> +91 9988776655</p>
+                <h4 className="font-bold text-slate-800">{patientName}</h4>
+                <p className="text-sm text-slate-500 flex items-center gap-1"><Phone size={14}/> {patient?.phone || '+91 9988776655'}</p>
               </div>
             </div>
             <button className="bg-slate-100 text-slate-700 px-3 py-1.5 rounded text-sm font-semibold hover:bg-slate-200">Mark Arrived</button>
           </div>
-        ))}
+        )})}
       </div>
     </div>
   );

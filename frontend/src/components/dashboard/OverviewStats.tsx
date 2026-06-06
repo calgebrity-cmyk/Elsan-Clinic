@@ -1,11 +1,21 @@
 import { Users, Calendar, FileText, MessageSquare } from "lucide-react";
 
+import { usePatients } from "../../hooks";
+
 export default function OverviewStats() {
+  const { data: patients = [] } = usePatients();
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const newPatientsToday = patients.filter((p: any) => new Date(p.created_at) >= today).length;
+  const activePatients = patients.filter((p: any) => p.is_active).length;
+
   const stats = [
-    { title: "Total Patients", value: "12,345", icon: Users, trend: "+12%", color: "text-blue-600", bg: "bg-blue-50" },
-    { title: "Today's Appointments", value: "42", icon: Calendar, trend: "Same", color: "text-orange-600", bg: "bg-orange-50" },
-    { title: "Prescriptions Issued", value: "8,234", icon: FileText, trend: "+5%", color: "text-teal-600", bg: "bg-teal-50" },
-    { title: "WhatsApp Deliveries", value: "99.8%", icon: MessageSquare, trend: "Stable", color: "text-green-600", bg: "bg-green-50" },
+    { title: "Total Patients", value: patients.length.toString(), icon: Users, trend: "+12%", color: "text-blue-600", bg: "bg-blue-50" },
+    { title: "New Patients Today", value: newPatientsToday.toString(), icon: Users, trend: "Daily", color: "text-emerald-600", bg: "bg-emerald-50" },
+    { title: "Today's Appointments", value: "0", icon: Calendar, trend: "Same", color: "text-orange-600", bg: "bg-orange-50" },
+    { title: "Active Patients", value: activePatients.toString(), icon: Users, trend: "Stable", color: "text-green-600", bg: "bg-green-50" },
   ];
 
   return (

@@ -54,7 +54,7 @@ async def list_public_doctors(
     return [map_response(d) for d in doctors]
 
 @router.get("", response_model=List[DoctorResponse])
-@require_roles(["SUPER_ADMIN"])
+@require_roles(["SUPER_ADMIN", "DIRECTOR", "RECEPTIONIST", "DOCTOR", "NURSE", "PHARMACY", "ANALYST"])
 async def list_doctors(
     current_user: User = Depends(get_current_user),
     service: DoctorService = Depends(get_doctor_service)
@@ -63,7 +63,7 @@ async def list_doctors(
     return [map_response(d) for d in doctors]
 
 @router.get("/{id}", response_model=DoctorResponse)
-@require_roles(["SUPER_ADMIN"])
+@require_roles(["SUPER_ADMIN", "RECEPTIONIST", "DOCTOR", "NURSE"])
 async def get_doctor(
     id: str,
     current_user: User = Depends(get_current_user),

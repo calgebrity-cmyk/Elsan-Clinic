@@ -298,7 +298,7 @@ export function DoctorsView() {
   React.useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8009/api/v1';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
         const res = await fetch(`${apiUrl}/doctors/public`);
         if (res.ok) {
           const data = await res.json();
@@ -354,15 +354,15 @@ export function DoctorsView() {
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Qualifications & Fellowships</h3>
                 <ul className="space-y-1.5 list-disc list-inside text-sm text-slate-700">
-                  {doc.qualifications.map((q, idx) => <li key={`q-${idx}`}>{q}</li>)}
-                  {doc.fellowships.map((f, idx) => <li key={`f-${idx}`} className="text-slate-600">{f}</li>)}
+                  {doc.qualifications.map((q: string, idx: number) => <li key={`q-${idx}`}>{q}</li>)}
+                  {doc.fellowships.map((f: string, idx: number) => <li key={`f-${idx}`} className="text-slate-600">{f}</li>)}
                 </ul>
               </div>
               
               <div className="mt-auto pt-4 border-t border-slate-100">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Specialises In</h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {doc.specialties.map((spec, idx) => (
+                  {doc.specialties.map((spec: string, idx: number) => (
                     <span key={idx} className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs">
                       {spec}
                     </span>
@@ -535,7 +535,7 @@ export function BookView() {
   React.useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8009/api/v1';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
         const res = await fetch(`${apiUrl}/doctors/public`);
         if (res.ok) {
           const data = await res.json();
@@ -565,7 +565,7 @@ export function BookView() {
     };
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8009/api/v1';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
       const res = await fetch(`${apiUrl}/appointments/public`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

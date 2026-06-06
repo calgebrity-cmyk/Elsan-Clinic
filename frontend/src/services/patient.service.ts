@@ -21,4 +21,14 @@ export const patientService = {
     const response = await api.put(`/patients/${id}`, data);
     return response.data;
   },
+
+  search: async (query: string): Promise<PatientApiResponse[]> => {
+    const response = await api.get(`/patients/search?q=${encodeURIComponent(query)}`);
+    return response.data;
+  },
+
+  delete: async (id: string) => {
+    const response = await api.delete(`/patients/${id}`);
+    return response.data;
+  }
 };

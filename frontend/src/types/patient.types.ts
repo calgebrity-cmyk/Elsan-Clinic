@@ -16,4 +16,17 @@ export interface PatientApiResponse {
   phone: string;
   age?: number;
   gender?: string;
+  blood_group?: string;
+  address?: string;
+  medical_history?: string;
+  email?: string;
+  emergency_contact?: string;
+  allergies?: string;
+  current_symptoms?: string;
+  notes?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  assigned_doctor_id?: string;
+  assigned_doctor_name?: string;
 }
