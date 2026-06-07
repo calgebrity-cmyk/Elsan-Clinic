@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { appointmentApi } from "../../services/api";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function DoctorDashboard({ user }: { user: any }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loadingAppts, setLoadingAppts] = useState(true);
+
+  let basePath = "/admin";
+  if (pathname.startsWith("/elsanclinic/doctor-dashboard")) {
+    basePath = "/elsanclinic/doctor-dashboard";
+  } else if (pathname.startsWith("/elsanclinic/admin-dashboard")) {
+    basePath = "/elsanclinic/admin-dashboard";
+  }
 
   const todayStr = new Date().toISOString().split('T')[0];
   
@@ -76,11 +84,11 @@ export default function DoctorDashboard({ user }: { user: any }) {
           <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
             <h3 className="font-semibold text-slate-800 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => router.push('/admin/prescriptions')} className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+              <button onClick={() => router.push(`${basePath}/prescriptions`)} className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors cursor-pointer">
                 <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center">+</div>
                 <span className="text-xs font-medium text-center">New Prescription</span>
               </button>
-              <button onClick={() => router.push('/admin/patients')} className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors">
+              <button onClick={() => router.push(`${basePath}/patients`)} className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors cursor-pointer">
                 <div className="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center">👤</div>
                 <span className="text-xs font-medium text-center">Patient History</span>
               </button>
