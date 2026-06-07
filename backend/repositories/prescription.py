@@ -2,7 +2,7 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from models.domain import Prescription, PrescriptionMedicine
+from models.domain import Prescription, PrescriptionMedicine, Doctor
 from schemas.prescription import PrescriptionCreate, PrescriptionUpdate
 
 class PrescriptionRepository:
@@ -10,7 +10,7 @@ class PrescriptionRepository:
         self.db = db
 
     async def create(self, data: PrescriptionCreate) -> Prescription:
-        presc_data = data.model_dump(exclude={"medicines"})
+        presc_data = data.model_dump(exclude={"medicines", "symptoms", "next_visit_date"})
         prescription = Prescription(**presc_data)
         self.db.add(prescription)
         await self.db.flush()
@@ -36,7 +36,7 @@ class PrescriptionRepository:
             select(Prescription)
             .options(
                 selectinload(Prescription.medicines),
-                selectinload(Prescription.doctor),
+                selectinload(Prescription.doctor).selectinload(Doctor.user),
                 selectinload(Prescription.patient),
                 selectinload(Prescription.visit)
             )
@@ -56,7 +56,7 @@ class PrescriptionRepository:
     async def get_history(self, patient_id: uuid.UUID = None, doctor_id: uuid.UUID = None, visit_id: uuid.UUID = None, start_date=None, end_date=None, skip: int = 0, limit: int = 100) -> list[Prescription]:
         stmt = select(Prescription).options(
             selectinload(Prescription.medicines),
-            selectinload(Prescription.doctor),
+            selectinload(Prescription.doctor).selectinload(Doctor.user),
             selectinload(Prescription.patient),
             selectinload(Prescription.visit)
         )

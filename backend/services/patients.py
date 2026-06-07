@@ -76,3 +76,32 @@ class PatientService:
 
     async def get_assigned_doctor(self, patient_id: uuid.UUID):
         return await self.repository.get_assigned_doctor(patient_id)
+
+    async def get_doctor_assigned_patients(self, doctor_id: str):
+        try:
+            doc_id = uuid.UUID(doctor_id)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid doctor ID")
+        return await self.repository.get_doctor_assigned_patients(doc_id)
+
+    async def get_patient_history(self, patient_id: str):
+        # We can aggregate from other repos, or just run a combined query here.
+        # For simplicity, let's query Visits, Prescriptions from the DB directly since we have the session.
+        try:
+            pid = uuid.UUID(patient_id)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid patient ID")
+            
+        from sqlalchemy.future import select
+        from sqlalchemy.orm import selectinload
+        from models.domain import Visit, Prescription, Appointment
+        
+        visits_res = await self.db.execute(select(Visit).filter(Visit.patient_id == pid).order_by(Visit.created_at.desc()))
+        presc_res = await self.db.execute(select(Prescription).filter(Prescription.patient_id == pid).options(selectinload(Prescription.medicines)).order_by(Prescription.created_at.desc()))
+        appt_res = await self.db.execute(select(Appointment).filter(Appointment.patient_id == pid).order_by(Appointment.appointment_date.desc()))
+        
+        return {
+            "visits": visits_res.scalars().all(),
+            "prescriptions": presc_res.scalars().all(),
+            "appointments": appt_res.scalars().all()
+        }

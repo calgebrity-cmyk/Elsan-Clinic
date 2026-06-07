@@ -51,6 +51,25 @@ async def search_patients(
     patients = await service.search_patients(q)
     return [map_patient_response(p) for p in patients]
 
+@router.get("/doctor/assigned", response_model=List[PatientResponse])
+@require_roles(["SUPER_ADMIN", "DOCTOR"])
+async def list_doctor_assigned_patients(
+    current_user: User = Depends(get_current_user),
+    service: PatientService = Depends(get_patient_service)
+):
+    # Only allow doctors to fetch their own assigned patients unless admin
+    if current_user.role == "DOCTOR":
+        if not hasattr(current_user, "doctor_profile") or not current_user.doctor_profile:
+            raise HTTPException(status_code=400, detail="Doctor profile not found for user")
+        doctor_id = str(current_user.doctor_profile.id)
+    else:
+        # If admin, maybe require passing a doctor_id, but for now we just fail if not doctor.
+        # Ideally accept doctor_id as optional query param.
+        raise HTTPException(status_code=400, detail="Only doctors can view their assigned patients using this endpoint. Admins use standard list.")
+
+    patients = await service.get_doctor_assigned_patients(doctor_id)
+    return [map_patient_response(p) for p in patients]
+
 @router.get("", response_model=List[PatientResponse])
 @require_roles(["SUPER_ADMIN", "RECEPTIONIST", "DOCTOR", "NURSE"])
 async def list_patients(
@@ -106,3 +125,14 @@ async def delete_patient(
     service: PatientService = Depends(get_patient_service)
 ):
     await service.delete_patient(id)
+
+@router.get("/{id}/history")
+@require_roles(["SUPER_ADMIN", "DOCTOR", "RECEPTIONIST", "NURSE"])
+async def get_patient_history(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    service: PatientService = Depends(get_patient_service)
+):
+    history = await service.get_patient_history(id)
+    # Return as raw dict, FastAPI will serialize it to JSON.
+    return history

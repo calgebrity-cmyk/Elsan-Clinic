@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Search, Loader2, Eye, CalendarPlus } from "lucide-react";
-import { usePatients, useSearchPatients } from "../../hooks";
+import { usePatients, useSearchPatients, useUser } from "../../hooks";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
@@ -12,6 +12,7 @@ export default function PatientSearch() {
   // Conditionally use search or get all
   const { data: allPatients = [], isLoading: isLoadingAll } = usePatients();
   const { data: searchResults = [], isLoading: isSearching } = useSearchPatients(searchQuery);
+  const { data: user } = useUser();
 
   const [isRegModalOpen, setIsRegModalOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
@@ -143,9 +144,11 @@ export default function PatientSearch() {
                         <Button variant="outline" size="sm" onClick={() => handleViewPatient(p.id)} title="View Profile">
                           <Eye className="h-4 w-4 text-blue-600" />
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleCreateVisit(p.id)} title="Create Visit">
-                          <CalendarPlus className="h-4 w-4 text-emerald-600" />
-                        </Button>
+                        {user?.role !== 'DOCTOR' && (
+                          <Button variant="outline" size="sm" onClick={() => handleCreateVisit(p.id)} title="Create Visit">
+                            <CalendarPlus className="h-4 w-4 text-emerald-600" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import Optional
+from typing import Optional, Dict, Any
 import uuid
 from datetime import datetime
 
@@ -9,6 +9,7 @@ class ClinicMedicineBase(BaseModel):
     default_dosage: Optional[str] = None
     default_frequency: Optional[str] = None
     default_instructions: Optional[str] = None
+    dynamic_fields: Optional[Dict[str, Any]] = None
     is_active: bool = True
 
 class ClinicMedicineCreate(ClinicMedicineBase):
@@ -20,6 +21,7 @@ class ClinicMedicineUpdate(BaseModel):
     default_dosage: Optional[str] = None
     default_frequency: Optional[str] = None
     default_instructions: Optional[str] = None
+    dynamic_fields: Optional[Dict[str, Any]] = None
     is_active: Optional[bool] = None
 
 class ClinicMedicineResponse(ClinicMedicineBase):

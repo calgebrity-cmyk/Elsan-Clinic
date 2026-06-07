@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 from datetime import datetime, date, time
 
 from database.database import get_db
@@ -14,7 +15,18 @@ async def get_appointments(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    result = await db.execute(select(Appointment))
+    stmt = select(Appointment).options(selectinload(Appointment.patient))
+    
+    # Optional: Filter by today or future dates only
+    # stmt = stmt.where(Appointment.appointment_date >= date.today())
+    
+    if current_user.role == "DOCTOR":
+        # Need to join with Doctor to filter by user_id
+        from models.domain import Doctor
+        stmt = stmt.join(Doctor).where(Doctor.user_id == current_user.id)
+        
+    stmt = stmt.order_by(Appointment.appointment_date, Appointment.appointment_time)
+    result = await db.execute(stmt)
     appointments = result.scalars().all()
     return appointments
 

@@ -10,10 +10,23 @@ from routers.patients import router as patients_router
 from routers.appointments import router as appointments_router
 from api.medicines.router import router as medicines_router
 from api.prescriptions.router import router as prescriptions_router
+from api.whatsapp.router import router as whatsapp_router
+import asyncio
+from contextlib import asynccontextmanager
+
 from routers.visits import router as visits_router
 from routers.admissions import router as admissions_router
+from services.cron_scheduler import run_scheduler
 
-app = FastAPI(title="Elsan Clinic Backend API", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Start the background scheduler
+    task = asyncio.create_task(run_scheduler())
+    yield
+    # Shutdown: Cancel the task
+    task.cancel()
+
+app = FastAPI(title="Elsan Clinic Backend API", version="1.0.0", lifespan=lifespan)
 
 # Enable CORS
 app.add_middleware(
@@ -33,6 +46,7 @@ app.include_router(patients_router)
 app.include_router(appointments_router)
 app.include_router(medicines_router)
 app.include_router(prescriptions_router)
+app.include_router(whatsapp_router)
 app.include_router(visits_router)
 app.include_router(admissions_router)
 

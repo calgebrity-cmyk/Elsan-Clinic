@@ -1,5 +1,7 @@
 export { default as OverviewStats } from './OverviewStats';
 export { default as ReceptionistDashboard } from './ReceptionistDashboard';
+export { default as DoctorDashboard } from './DoctorDashboard';
+export { default as DoctorAppointments } from './DoctorAppointments';
 export { default as DoctorsTable } from './DoctorsTable';
 export { default as StaffTable } from './StaffTable';
 export * from './PatientRegistrationModal';

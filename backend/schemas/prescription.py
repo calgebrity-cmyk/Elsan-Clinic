@@ -32,9 +32,11 @@ class PrescriptionBase(BaseModel):
     sent_whatsapp: bool = False
 
 class PrescriptionCreate(BaseModel):
-    visit_id: uuid.UUID
+    visit_id: Optional[uuid.UUID] = None
     patient_id: uuid.UUID
     doctor_id: uuid.UUID
+    symptoms: Optional[str] = None
+    next_visit_date: Optional[str] = None
     medicines: List[PrescriptionMedicineCreate]
 
 class PrescriptionUpdate(BaseModel):

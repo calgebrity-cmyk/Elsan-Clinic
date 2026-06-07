@@ -75,3 +75,12 @@ class PatientRepository:
         ).options(selectinload(Doctor.user))
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def get_doctor_assigned_patients(self, doctor_id: uuid.UUID) -> List[Patient]:
+        stmt = select(Patient).join(PatientDoctorMapping).filter(
+            PatientDoctorMapping.doctor_id == doctor_id,
+            PatientDoctorMapping.is_active == True,
+            Patient.is_active == True
+        ).order_by(Patient.created_at.desc())
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())

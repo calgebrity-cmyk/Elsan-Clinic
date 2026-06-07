@@ -92,17 +92,26 @@ export function PatientManagement() {
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // We should ideally get user role to decide which endpoint to call. 
+  // But for the scope of "Assigned Patients Dashboard" for Doctors, 
+  // we will try to call getAssignedPatients. If it fails (e.g. not a doctor), fallback to getPatients.
   useEffect(() => {
-    patientApi.getPatients().then((data) => {
+    patientApi.getAssignedPatients().then((data) => {
       setPatients(data);
       setLoading(false);
+    }).catch(err => {
+      // Fallback for non-doctors
+      patientApi.getPatients().then((data) => {
+        setPatients(data);
+        setLoading(false);
+      }).catch(() => setLoading(false));
     });
   }, []);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800">Patient Database</h2>
+        <h2 className="text-2xl font-bold text-slate-800">My Patients</h2>
         <button className="bg-orange-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-orange-600 transition">
           <Plus size={18} /> Register Patient
         </button>
@@ -115,7 +124,7 @@ export function PatientManagement() {
         {loading ? (
           <div className="p-8 text-center text-slate-500"><Loader2 className="animate-spin inline mr-2"/> Loading Patients...</div>
         ) : patients.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">No patients registered yet. Enter a search term or add a patient.</div>
+          <div className="p-8 text-center text-slate-500">No assigned patients found.</div>
         ) : (
           <table className="w-full text-left">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">

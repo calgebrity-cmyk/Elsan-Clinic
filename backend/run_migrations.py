@@ -97,6 +97,13 @@ async def run_migrations():
         except Exception as e:
             print(f"Error creating admissions tables: {e}")
 
+        # 7. Add dynamic_fields to clinic_medicines
+        try:
+            await conn.execute(text("ALTER TABLE clinic_medicines ADD COLUMN dynamic_fields JSONB;"))
+            print("Successfully added dynamic_fields to clinic_medicines.")
+        except Exception as e:
+            print(f"Error adding dynamic_fields: {e}")
+
     await engine.dispose()
     print("Database migrations completed.")
 

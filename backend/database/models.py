@@ -120,6 +120,8 @@ class Prescription(Base):
     visit = relationship("Visit", back_populates="prescription")
     medicines = relationship("Medicine", back_populates="prescription", cascade="all, delete-orphan")
     whatsapp_logs = relationship("WhatsAppLog", back_populates="prescription")
+    patient = relationship("Patient")
+    doctor = relationship("Doctor")
 
 class Medicine(Base):
     __tablename__ = "medicines"

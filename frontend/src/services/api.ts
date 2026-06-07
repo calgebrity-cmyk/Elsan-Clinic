@@ -46,12 +46,68 @@ export const patientApi = {
   getPatients: async () => {
     const response = await api.get('/patients');
     return response.data;
+  },
+  getAssignedPatients: async () => {
+    const response = await api.get('/patients/doctor/assigned');
+    return response.data;
+  },
+  getPatient: async (id: string) => {
+    const response = await api.get(`/patients/${id}`);
+    return response.data;
+  },
+  search: async (query: string) => {
+    const response = await api.get(`/patients/search?q=${query}`);
+    return response.data;
+  },
+  getHistory: async (id: string) => {
+    const response = await api.get(`/patients/${id}/history`);
+    return response.data;
   }
 };
 
 export const appointmentApi = {
   getAppointments: async () => {
     const response = await api.get('/appointments');
+    return response.data;
+  }
+};
+
+export const visitApi = {
+  create: async (data: any) => {
+    const response = await api.post('/visits', data);
+    return response.data;
+  }
+};
+
+export const medicineApi = {
+  search: async (query: string) => {
+    const response = await api.get(`/medicines/search?q=${query}`);
+    return response.data;
+  },
+  uploadCSV: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/medicines/upload-csv', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  }
+};
+
+export const prescriptionApi = {
+  create: async (data: any) => {
+    const response = await api.post('/prescriptions', data);
+    return response.data;
+  },
+  generatePDF: async (id: string) => {
+    const response = await api.post(`/prescriptions/${id}/regenerate-pdf`);
+    return response.data;
+  }
+};
+
+export const whatsappApi = {
+  sendPrescription: async (prescriptionId: string) => {
+    const response = await api.post('/whatsapp/send-prescription', { prescription_id: prescriptionId });
     return response.data;
   }
 };

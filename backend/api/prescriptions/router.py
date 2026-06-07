@@ -48,6 +48,16 @@ async def create_prescription(
     service: PrescriptionService = Depends(get_prescription_service)
 ):
     # In a real scenario, fetch actual clinic settings, doctor info, and patient info from DB
+    
+    # Override doctor_id with actual doctor's ID if user is a DOCTOR
+    from models.domain import Doctor
+    if current_user.role == "DOCTOR":
+        doctor_res = await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))
+        doctor = doctor_res.scalar_one_or_none()
+        if not doctor:
+            raise HTTPException(status_code=400, detail="Doctor profile not found")
+        data.doctor_id = doctor.id
+
     # Fetching patient for the PDF
     patient_res = await db.execute(select(Patient).where(Patient.id == data.patient_id))
     patient = patient_res.scalar_one_or_none()
@@ -59,13 +69,37 @@ async def create_prescription(
     patient_data = {"name": patient.full_name, "id": patient.patient_code, "age": str(patient.age), "gender": patient.gender, "phone": patient.phone, "date": "Today"}
     
     # We assume 'notes' and 'next_visit' could be fetched from the Visit table
-    visit_res = await db.execute(select(Visit).where(Visit.id == data.visit_id))
-    visit = visit_res.scalar_one_or_none()
-    
-    notes = visit.doctor_notes if visit else ""
+    if data.visit_id:
+        visit_res = await db.execute(select(Visit).where(Visit.id == data.visit_id))
+        visit = visit_res.scalar_one_or_none()
+        if not visit:
+            raise HTTPException(status_code=404, detail="Visit not found")
+            
+        # Update existing visit if new data is provided
+        if data.next_visit_date:
+            visit.next_visit_date = datetime.strptime(data.next_visit_date, "%Y-%m-%d").date()
+        if data.symptoms:
+            visit.symptoms = data.symptoms
+    else:
+        # Auto-create visit
+        visit = Visit(
+            patient_id=data.patient_id,
+            doctor_id=data.doctor_id,
+            symptoms=data.symptoms or "Follow up / Prescription generation",
+            next_visit_date=datetime.strptime(data.next_visit_date, "%Y-%m-%d").date() if data.next_visit_date else None
+        )
+        db.add(visit)
+        await db.flush() # To get visit.id
+        data.visit_id = visit.id
+
+    notes = visit.doctor_notes if visit and visit.doctor_notes else visit.symptoms if visit else ""
     next_visit = str(visit.next_visit_date) if visit and visit.next_visit_date else ""
 
-    return await service.create_prescription(data, clinic_data, doctor_data, patient_data, notes, next_visit)
+    prescription = await service.create_prescription(data, clinic_data, doctor_data, patient_data, notes, next_visit)
+    
+    await db.commit()
+    
+    return prescription
 
 @router.get("/verify/{id}")
 async def verify_prescription(

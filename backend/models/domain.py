@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey, Text, Date, Time, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 import enum
 
@@ -139,6 +139,8 @@ class Prescription(Base):
     visit = relationship("Visit", back_populates="prescription")
     medicines = relationship("PrescriptionMedicine", back_populates="prescription", cascade="all, delete-orphan")
     whatsapp_logs = relationship("WhatsAppLog", back_populates="prescription")
+    patient = relationship("Patient")
+    doctor = relationship("Doctor")
 
 class ClinicMedicine(Base):
     """Reusable medicine library for the clinic"""
@@ -150,6 +152,7 @@ class ClinicMedicine(Base):
     default_dosage = Column(String(100), nullable=True)
     default_frequency = Column(String(100), nullable=True)
     default_instructions = Column(String(255), nullable=True)
+    dynamic_fields = Column(JSONB, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=get_utc_now)
 

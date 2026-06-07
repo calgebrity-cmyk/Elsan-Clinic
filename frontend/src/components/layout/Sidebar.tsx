@@ -24,8 +24,8 @@ const getMenuItems = (role: string) => {
   
   if (['SUPER_ADMIN', 'DOCTOR'].includes(role)) {
     items.push({ name: "My Appointments", href: "/admin/appointments", icon: Calendar });
+    items.push({ name: "My Patients", href: "/admin/patients", icon: Users });
     items.push({ name: "Prescriptions", href: "/admin/prescriptions", icon: FileText });
-    items.push({ name: "Telemedicine", href: "/admin/telemedicine", icon: Video });
   }
 
   if (['SUPER_ADMIN'].includes(role)) {
