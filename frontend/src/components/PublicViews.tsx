@@ -53,6 +53,8 @@ function HeroVideoCarousel({ onNavigate }: { onNavigate: (v: ViewState) => void 
     }
   ];
 
+  const videoRefs = React.useRef<(HTMLVideoElement | null)[]>([]);
+
   React.useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % slides.length);
@@ -60,11 +62,32 @@ function HeroVideoCarousel({ onNavigate }: { onNavigate: (v: ViewState) => void 
     return () => clearInterval(timer);
   }, [slides.length]);
 
+  React.useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (!video) return;
+      if (index === currentSlide) {
+        video.play().catch(() => {});
+      } else {
+        setTimeout(() => {
+           video.pause();
+        }, 1000);
+      }
+    });
+  }, [currentSlide]);
+
   return (
     <div className="relative rounded-2xl overflow-hidden shadow-xl w-full" style={{ height: '550px' }}>
        {slides.map((slide, index) => (
           <div key={index} className={`absolute inset-0 transition-opacity duration-1000 bg-slate-900 ${index === currentSlide ? 'opacity-100 z-0' : 'opacity-0 -z-10'}`}>
-             <video src={slide.videoUrl} poster={slide.posterUrl} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover object-center" />
+             <video 
+               ref={el => { videoRefs.current[index] = el; }}
+               src={slide.videoUrl} 
+               poster={slide.posterUrl} 
+               muted 
+               loop 
+               playsInline 
+               className="absolute inset-0 w-full h-full object-cover object-center" 
+             />
              <div className="absolute inset-0 bg-black/40" /> {/* Dark Overlay for text readability */}
           </div>
        ))}

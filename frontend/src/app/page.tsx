@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Stethoscope, Clock, FileText, User, Pill, Phone, BrainCircuit, Activity, HeartPulse, Users, Calendar, Star, Building2, BookOpen, Ambulance, Globe, ChevronRight, ChevronDown, CheckCircle2, MapPin, Menu, X as XIcon, Quote, Shield } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
@@ -36,6 +36,8 @@ function HeroVideoCarousel({ setActiveTab }: { setActiveTab: (tab: string) => vo
     }
   ];
 
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % slides.length);
@@ -43,11 +45,34 @@ function HeroVideoCarousel({ setActiveTab }: { setActiveTab: (tab: string) => vo
     return () => clearInterval(timer);
   }, [slides.length]);
 
+  useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (!video) return;
+      if (index === currentSlide) {
+        // Play the active video
+        video.play().catch(() => {});
+      } else {
+        // Pause inactive videos after the fade transition completes (1000ms)
+        setTimeout(() => {
+           video.pause();
+        }, 1000);
+      }
+    });
+  }, [currentSlide]);
+
   return (
     <div className="relative overflow-hidden w-full" style={{ height: 'calc(100vh - 68px)' }}>
       {slides.map((slide, index) => (
         <div key={index} className={`absolute inset-0 transition-opacity duration-1000 bg-slate-900 ${index === currentSlide ? 'opacity-100 z-0' : 'opacity-0 -z-10'}`}>
-          <video src={slide.videoUrl} poster={slide.posterUrl} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover object-center scale-[1.08] origin-center" />
+          <video 
+            ref={el => { videoRefs.current[index] = el; }}
+            src={slide.videoUrl} 
+            poster={slide.posterUrl} 
+            muted 
+            loop 
+            playsInline 
+            className="absolute inset-0 w-full h-full object-cover object-center scale-[1.08] origin-center" 
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
         </div>
       ))}
