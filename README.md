@@ -79,14 +79,7 @@ The system employs a Clean Architecture paradigm. The Frontend leverages Server-
 ## Environment Variables
 
 ### Backend (`backend/.env`)
-```env
-DATABASE_URL=postgresql+asyncpg://postgres:Calgebrity123@db.mzbamjioprysblejnwkn.supabase.co:5432/postgres
-SECRET_KEY=your_super_secret_jwt_key
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
-CLOUDINARY_CLOUD_NAME=dfbkszct7
-CLOUDINARY_API_KEY=247351723381723
-CLOUDINARY_API_SECRET=q4V8c5svAHx0mV1fD1ThZ1nTv18
+
 ```
 
 ### Frontend (`frontend/.env.local`)
