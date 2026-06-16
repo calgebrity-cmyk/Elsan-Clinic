@@ -181,7 +181,7 @@ export function DoctorFormModal({ isOpen, onClose, doctor, onSuccess }: DoctorFo
                 required
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="doctor@elsanclinic.com"
+                placeholder="doctor@elsanpublichealth.com"
                 className="bg-slate-50/50 border-slate-200 focus:bg-white transition-colors"
               />
             </div>

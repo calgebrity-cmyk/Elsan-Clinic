@@ -61,7 +61,7 @@ async def check_availability(
     doctor = None
     if doctor_name and doctor_name != "Any Available Doctor":
         result = await db.execute(select(Doctor).join(User).where(User.full_name.ilike(f"%{doctor_name}%")))
-        doctor = result.scalar_one_or_none()
+        doctor = result.scalars().first()
     
     if not doctor:
         result = await db.execute(select(Doctor))
@@ -107,7 +107,7 @@ async def create_public_appointment(
     # Create or get patient
     phone = data.get("phone")
     result = await db.execute(select(Patient).where(Patient.phone == phone))
-    patient = result.scalar_one_or_none()
+    patient = result.scalars().first()
     
     if not patient:
         patient_code = f"PAT{random.randint(10000, 99999)}"
@@ -126,7 +126,7 @@ async def create_public_appointment(
     doctor = None
     if doc_name and doc_name != "Any Available Doctor":
         result = await db.execute(select(Doctor).join(User).where(User.full_name.ilike(f"%{doc_name}%")))
-        doctor = result.scalar_one_or_none()
+        doctor = result.scalars().first()
     
     if not doctor:
         result = await db.execute(select(Doctor))

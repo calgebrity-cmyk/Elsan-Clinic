@@ -4,6 +4,7 @@ import { MessageSquare, Send, X, Calendar, User, Info, Bot } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { DOCTORS, CLINIC_INFO } from "../data";
+import { getApiBaseUrl } from "../lib/api-config";
 
 type Message = {
   id: string;
@@ -205,7 +206,7 @@ export default function FloatingContact() {
 
     if (chatState === 'booking_time') {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8009/api/v1';
+        const apiUrl = getApiBaseUrl();
         const docName = encodeURIComponent(bookingData.doctor_name || '');
         const dateVal = encodeURIComponent(bookingData.appointment_date || '');
         const convertedTime = formatTime12to24(text);
@@ -240,7 +241,7 @@ export default function FloatingContact() {
       setBookingData({}); // Clear buffer
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8009/api/v1';
+        const apiUrl = getApiBaseUrl();
         const res = await fetch(`${apiUrl}/appointments/public`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -289,8 +290,8 @@ export default function FloatingContact() {
     
     if (lower.includes('about') || lower.includes('clinic') || lower.includes('where') || lower.includes('location') || lower.includes('முகவரி') || lower.includes('கிளினிக்')) {
       const aboutTxt = language === 'en'
-        ? `${CLINIC_INFO.name} - ${CLINIC_INFO.tagline}.\nEstablished ${CLINIC_INFO.established}.\n\n📍 Address: ${CLINIC_INFO.address}\n📞 Phone: ${CLINIC_INFO.phone}\n✉️ Email: info@elsanclinic.com\n\n🕒 Timings:\nMon-Fri: 9 AM - 8 PM\nSat-Sun: 10 AM - 4 PM`
-        : `${CLINIC_INFO.name} - ${CLINIC_INFO.tagline}.\n\n📍 முகவரி: ${CLINIC_INFO.address}\n📞 தொலைபேசி: ${CLINIC_INFO.phone}\n✉️ மின்னஞ்சல்: info@elsanclinic.com`;
+        ? `${CLINIC_INFO.name} - ${CLINIC_INFO.tagline}.\nEstablished ${CLINIC_INFO.established}.\n\n📍 Address: ${CLINIC_INFO.address}\n📞 Phone: ${CLINIC_INFO.phone}\n✉️ Email: info@elsanpublichealth.com\n\n🕒 Timings:\nMon-Fri: 9 AM - 8 PM\nSat-Sun: 10 AM - 4 PM`
+        : `${CLINIC_INFO.name} - ${CLINIC_INFO.tagline}.\n\n📍 முகவரி: ${CLINIC_INFO.address}\n📞 தொலைபேசி: ${CLINIC_INFO.phone}\n✉️ மின்னஞ்சல்: info@elsanpublichealth.com`;
       return { id: msgId, role: 'bot', text: aboutTxt, options: [t.optBook, t.optWhatsApp, t.optMenu] };
     }
 

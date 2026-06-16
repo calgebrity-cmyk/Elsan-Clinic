@@ -6,6 +6,7 @@ import { ChevronRight, ArrowRight, Activity, HeartPulse, Stethoscope, Pill, Baby
 import { DOCTORS, SERVICES, CLINIC_INFO } from '../data';
 import type { ViewState } from '../types';
 import { useSettings } from '../hooks';
+import { getApiBaseUrl } from '../lib/api-config';
 
 // Map icon strings to real lucide components safely
 const ICON_MAP: Record<string, any> = {
@@ -345,7 +346,7 @@ export function DoctorsView() {
   React.useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+        const apiUrl = getApiBaseUrl();
         const res = await fetch(`${apiUrl}/doctors/public`);
         if (res.ok) {
           const data = await res.json();
@@ -669,7 +670,7 @@ export function ContactView() {
             <div className="bg-green-50 text-green-600 p-3 rounded-xl"><Phone size={24}/></div>
             <div>
               <h3 className="font-bold text-slate-800 text-lg">Contact Info</h3>
-              <p className="text-slate-600 mt-1">Phone: {settings?.phone || CLINIC_INFO.phone}<br/>Email: {settings?.email || "info@elsanclinic.com"}</p>
+              <p className="text-slate-600 mt-1">Phone: {settings?.phone || CLINIC_INFO.phone}<br/>Email: {settings?.email || "info@elsanpublichealth.com"}</p>
             </div>
           </div>
           <div className="flex items-start gap-4">
@@ -707,7 +708,7 @@ export function BookView() {
   React.useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+        const apiUrl = getApiBaseUrl();
         const res = await fetch(`${apiUrl}/doctors/public`);
         if (res.ok) {
           const data = await res.json();
@@ -737,7 +738,7 @@ export function BookView() {
     };
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+      const apiUrl = getApiBaseUrl();
       const res = await fetch(`${apiUrl}/appointments/public`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

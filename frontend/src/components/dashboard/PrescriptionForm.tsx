@@ -4,6 +4,7 @@ import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { useState, useEffect } from "react";
 import { medicineApi, prescriptionApi, patientApi } from "../../services/api";
+import { getApiBaseUrl } from "../../lib/api-config";
 
 export default function PrescriptionForm({ patientId, visitId }: { patientId?: string, visitId?: string }) {
   const [selectedPatientId, setSelectedPatientId] = useState<string | undefined>(patientId);
@@ -138,7 +139,7 @@ export default function PrescriptionForm({ patientId, visitId }: { patientId?: s
       };
       
       const res = await prescriptionApi.create(prescData);
-      const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1').replace(/\/$/, "");
+      const baseUrl = getApiBaseUrl().replace(/\/$/, "");
       setPdfUrl(`${baseUrl}/prescriptions/${res.id}/pdf`);
       
       // Update activeVisitId in case the backend created a new one
