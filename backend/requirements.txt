@@ -21,3 +21,4 @@ reportlab
 pandas
 openpyxl
 python-multipart
+email-validator
