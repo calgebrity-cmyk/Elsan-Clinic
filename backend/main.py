@@ -68,7 +68,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     logging.error(f"Unhandled server error: {exc}", exc_info=True)
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal Server Error"}
+        content={"detail": "Internal Server Error", "error": str(exc)}
     )
 
 from fastapi.responses import HTMLResponse
